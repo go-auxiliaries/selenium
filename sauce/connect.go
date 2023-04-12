@@ -118,7 +118,7 @@ func (c *Connect) Start() error {
 		}
 	}
 	if !started {
-		c.Stop() // ignore error.
+		_ = c.Stop() // ignore error.
 		return fmt.Errorf("proxy process did not become ready before the timeout")
 	}
 	return nil

@@ -9,3 +9,4 @@ vendor/*
 coverage.txt
 coverage.out
 .idea/*
+.go/*
