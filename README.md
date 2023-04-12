@@ -1,8 +1,16 @@
-# The most complete, best-tested WebDriver client for Go
+# The most complete, ~~best-tested WebDriver client for Go~~
 
-[![GoDoc](https://godoc.org/github.com/tebeka/selenium?status.svg)](https://godoc.org/github.com/tebeka/selenium)
+[![GoDoc](https://godoc.org/github.com/go-auxiliaries/selenium?status.svg)](https://godoc.org/github.com/go-auxiliaries/selenium)
 [![Travis](https://travis-ci.org/tebeka/selenium.svg?branch=master)](https://travis-ci.org/tebeka/selenium)
-[![Go Report Card](https://goreportcard.com/badge/github.com/tebeka/selenium)](https://goreportcard.com/report/github.com/tebeka/selenium)
+[![Go Report Card](https://goreportcard.com/badge/github.com/go-auxiliaries/selenium)](https://goreportcard.com/report/github.com/go-auxiliaries/selenium)
+
+# Reason to exist
+
+This repo was forked from [tebeka](https://github.com/tebeka/selenium).
+Original https://github.com/tebeka/selenium is being abandoned, last changes are incoherent and two years old, issues are stale.
+Also last changes shows that it wasn't even tested which makes statement that it is `best tested WebDriver client for GO` false.
+
+Reason to have a fork is to bring it back to life and make it great again.
 
 ## About
 
@@ -25,7 +33,7 @@ Chrome and [ChromeDriver][chromedriver],
 
 Run
 
-    go get -t -d github.com/tebeka/selenium
+    go get -t -d github.com/go-auxiliaries/selenium
 
 to fetch the package.
 
@@ -46,7 +54,7 @@ Re-run this periodically to get up-to-date versions of these binaries.
 
 ## Documentation
 
-The API documentation is at https://godoc.org/github.com/tebeka/selenium. See [the example](https://github.com/tebeka/selenium/blob/master/example_test.go) and unit tests(for [sauce](https://github.com/tebeka/selenium/blob/master/sauce_test.go), [selenium](https://github.com/tebeka/selenium/blob/master/selenium_test.go) and [service](https://github.com/tebeka/selenium/blob/master/service_test.go)) for better usage information.
+The API documentation is at https://godoc.org/github.com/go-auxiliaries/selenium. See [the example](https://github.com/go-auxiliaries/selenium/blob/master/example_test.go) and unit tests(for [sauce](https://github.com/go-auxiliaries/selenium/blob/master/sauce_test.go), [selenium](https://github.com/go-auxiliaries/selenium/blob/master/selenium_test.go) and [service](https://github.com/go-auxiliaries/selenium/blob/master/service_test.go)) for better usage information.
 
 ## Known Issues
 
@@ -58,7 +66,7 @@ intervention.
 Please feel free to [file an issue][issue] if this client doesn't work as
 expected.
 
-[issue]: https://github.com/tebeka/selenium/issues/new
+[issue]: https://github.com/go-auxiliaries/selenium/issues/new
 
 Below are known issues that affect the usage of this API. There are likely
 others filed on the respective issue trackers.
@@ -114,7 +122,7 @@ Patches are encouraged through GitHub pull requests. Please ensure that:
 
 See [the issue tracker][issues] for features that need implementing.
 
-[issues]: https://github.com/tebeka/selenium/issues
+[issues]: https://github.com/go-auxiliaries/selenium/issues
 
 ### Testing Locally
 
