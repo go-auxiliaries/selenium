@@ -20,20 +20,27 @@ for pkg in $(go list ./...); do
   go vet "$pkg"/...
   [ $? -ne 0 ] && st=1 && break
 
+  echo "golangci-lint run $local_pkg/..."
+  golangci-lint run "$local_pkg"/...
+  [ $? -ne 0 ] && st=1 && break
 done
 [ $st -ne 0 ] && exit $st
-
-echo "go vet ./*.go"
-go vet ./*.go
-[ $? -ne 0 ] && st=1 && exit $st
-
-echo "gofmt -l -s ./*.go"
-gofmt -l -s ./*.go
-
 
 echo "goimports -d ./*.go"
 out=$(goimports -d ./*.go 2>&1)
 echo "$out"
 [ -n "$out" ] && st=1 && exit $st
+
+echo "gofmt -l -s ./*.go"
+gofmt -l -s ./*.go
+[ $? -ne 0 ] && st=1 && exit $st
+
+echo "go vet ./*.go"
+go vet ./*.go
+[ $? -ne 0 ] && st=1 && exit $st
+
+echo "golangci-lint run ./*.go"
+golangci-lint run ./*.go
+[ $? -ne 0 ] && st=1 && exit $st
 
 exit $st

@@ -5,10 +5,10 @@ orbs:
 version: 2.1
 
 jobs:
-  build:
+  lint-and-test:
     executor:
       name: go/default
-      tag: '1.18'
+      tag: '1.19'
     steps:
       - checkout
       - go/load-cache
@@ -16,6 +16,7 @@ jobs:
       - run:
           command: |
             go install golang.org/x/tools/cmd/goimports@latest
+            go install github.com/golangci/golangci-lint/cmd/golangci-lint@v1.52.2
       - go/save-cache
       - run:
           command: |
@@ -31,5 +32,4 @@ jobs:
 workflows:
   ci:
     jobs:
-      - golangci-lint/lint
-      - build
+      - lint-and-test
