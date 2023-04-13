@@ -166,7 +166,7 @@ func (s Service) FrameBuffer() *FrameBuffer {
 	return s.xvfb
 }
 
-//PID returns the service pid
+// PID returns the service pid
 func (s Service) PID() int {
 	if s.cmd != nil {
 		return s.cmd.Process.Pid
