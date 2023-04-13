@@ -1,6 +1,6 @@
 module github.com/go-auxiliaries/selenium
 
-go 1.12
+go 1.16
 
 require (
 	github.com/BurntSushi/xgb v0.0.0-20160522181843-27f122750802 // indirect

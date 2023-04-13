@@ -914,7 +914,7 @@ type cookie struct {
 	Secure   bool        `json:"secure"`
 	Expiry   interface{} `json:"expiry"`
 	HTTPOnly bool        `json:"httpOnly"`
-	SameSite string      `json:"sameSite",omitempty`
+	SameSite string      `json:"sameSite,omitempty"`
 }
 
 func (c cookie) sanitize() Cookie {

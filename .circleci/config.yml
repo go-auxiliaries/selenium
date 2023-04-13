@@ -8,7 +8,7 @@ jobs:
   build:
     executor:
       name: go/default
-      tag: '1.12'
+      tag: '1.18'
     steps:
       - checkout
       - go/load-cache
@@ -19,13 +19,14 @@ jobs:
       - go/save-cache
       - run:
           command: |
-            goimports -d ./
-      - run:
-          command: |
-            gofmt -l -s ./
+            misc/cicd/code-lint.sh
       - go/test:
           failfast: true
+          verbose: true
 
+/extra/other/go-auxiliaries/selenium/:
+  circleci/config:
+    yml:
 
 workflows:
   ci:

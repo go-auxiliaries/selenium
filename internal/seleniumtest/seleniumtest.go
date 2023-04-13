@@ -300,7 +300,7 @@ func testWindows(t *testing.T, c Config) {
 		// a terminating null key.
 		// https://github.com/mozilla/geckodriver/issues/665
 		newWindowModifier := selenium.ShiftKey + selenium.NullKey
-		if err := wd.SendModifier(newWindowModifier /*isDown=*/, true); err != nil {
+		if err := wd.KeyDown(newWindowModifier); err != nil {
 			t.Fatalf("wd.SendModifer(selenium.ShiftKey) returned error: %v", err)
 		}
 		// Firefox and Geckodriver doesn't handle clicking on an element.
@@ -309,18 +309,18 @@ func testWindows(t *testing.T, c Config) {
 		if err := link.SendKeys(selenium.EnterKey); err != nil {
 			t.Fatalf("link.SendKeys(selenium.EnterKey) returned error: %v", err)
 		}
-		if err := wd.SendModifier(newWindowModifier /*isDown=*/, false); err != nil {
+		if err := wd.KeyUp(newWindowModifier); err != nil {
 			t.Fatalf("wd.SendKeys(selenium.ShiftKey) returned error: %v", err)
 		}
 	case "htmlunit":
 		newWindowModifier := selenium.ShiftKey
-		if err := wd.SendModifier(newWindowModifier /*isDown=*/, true); err != nil {
+		if err := wd.KeyDown(newWindowModifier); err != nil {
 			t.Fatalf("wd.SendModifer(selenium.ShiftKey) returned error: %v", err)
 		}
 		if err := link.Click(); err != nil {
 			t.Fatalf("link.Click() returned error: %v", err)
 		}
-		if err := wd.SendModifier(newWindowModifier /*isDown=*/, false); err != nil {
+		if err := wd.KeyUp(newWindowModifier); err != nil {
 			t.Fatalf("wd.SendKeys(selenium.ShiftKey) returned error: %v", err)
 		}
 	case "chrome":
@@ -1288,21 +1288,20 @@ func testProxy(t *testing.T, c Config) {
 
 		// Start serving SOCKS connections, but don't fail the test once the
 		// listener is closed at the end of execution.
-		done := make(chan struct{})
+		errChan := make(chan error, 1)
 		go func() {
-			err := socks.Serve(l)
-			select {
-			case <-done:
-				return
-			default:
-			}
-			if err != nil {
-				t.Fatalf("s.ListenAndServe(_) returned error: %v", err)
-			}
+			errChan <- socks.Serve(l)
 		}()
 		defer func() {
-			close(done)
-			l.Close()
+			close(errChan)
+			select {
+			case err := <-errChan:
+				if err != nil {
+					t.Fatalf("s.Serve(l) returned error: %v", err)
+				}
+			default:
+			}
+			_ = l.Close()
 		}()
 
 		caps := newTestCapabilities(t, c)
@@ -1621,7 +1620,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if path == "/search" {
-		r.ParseForm()
+		_ = r.ParseForm()
 		if len(r.Form) > 0 {
 			page = fmt.Sprintf(page, r.Form["q"][0], r.Form["s"][0])
 		}
@@ -1633,7 +1632,7 @@ var Handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			Value: fmt.Sprintf("value-%d", i),
 		})
 	}
-	fmt.Fprint(w, page)
+	_, _ = fmt.Fprint(w, page)
 })
 
 func RunFirefoxTests(t *testing.T, c Config) {
@@ -1704,11 +1703,16 @@ func testChromeExtension(t *testing.T, c Config) {
 	co := caps[chrome.CapabilitiesKey].(chrome.Capabilities)
 	cmd := exec.Command("pwd")
 	cmd.Stdout = os.Stdout
-	cmd.Run()
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("cmd.Run() returned error: %v", err)
+	}
 
 	cmd = exec.Command("ls")
 	cmd.Stdout = os.Stdout
-	cmd.Run()
+	if err := cmd.Run(); err != nil {
+		t.Fatalf("cmd.Run() returned error: %v", err)
+	}
+
 	const path = "testing/chrome_extension/css_page_red"
 	if err := co.AddUnpackedExtension(path); err != nil {
 		t.Fatalf("co.AddExtension(%q) returned error: %v", path, err)
@@ -1719,7 +1723,9 @@ func testChromeExtension(t *testing.T, c Config) {
 	if err != nil {
 		t.Fatalf("newRemote(_, _) returned error: %v", err)
 	}
-	defer wd.Quit()
+	defer func() {
+		err = wd.Quit()
+	}()
 
 	if c.Headless {
 		// https://crbug.com/706008

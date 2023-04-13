@@ -231,8 +231,8 @@ type PointerType string
 
 const (
 	MousePointer PointerType = "mouse"
-	PenPointer               = "pen"
-	TouchPointer             = "touch"
+	PenPointer   PointerType = "pen"
+	TouchPointer PointerType = "touch"
 )
 
 // PointerMoveOrigin controls how the offset for
