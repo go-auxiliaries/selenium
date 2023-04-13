@@ -315,6 +315,9 @@ type WebDriver interface {
 	// MaximizeWindow maximizes a window. If the name is empty, the current
 	// window will be maximized.
 	MaximizeWindow(name string) error
+	// MinimizeWindow minimize a window. If the name is empty, the current
+	// window will be maximized.
+	MinimizeWindow(name string) error
 	// ResizeWindow changes the dimensions of a window. If the name is empty, the
 	// current window will be maximized.
 	ResizeWindow(name string, width, height int) error

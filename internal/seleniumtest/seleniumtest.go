@@ -386,6 +386,12 @@ func testWindows(t *testing.T, c Config) {
 		}
 	})
 
+	t.Run("MinimizeWindow", func(t *testing.T) {
+		if err := wd.MinimizeWindow(otherHandle); err != nil {
+			t.Fatalf("error minimize window: %s", err)
+		}
+	})
+
 	t.Run("ResizeWindow", func(t *testing.T) {
 		if err := wd.ResizeWindow(otherHandle, 100, 100); err != nil {
 			t.Fatalf("error resizing window: %s", err)
