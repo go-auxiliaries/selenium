@@ -11,7 +11,7 @@ require (
 	github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b
 	github.com/golang/protobuf v1.3.4
 	github.com/google/go-cmp v0.3.0
-	github.com/mailru/easyjson v0.7.0 // indirect
+	github.com/mailru/easyjson v0.7.0
 	github.com/mediabuyerbot/go-crx3 v1.3.1
 	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
 )
