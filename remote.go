@@ -73,8 +73,9 @@ func newRequest(method string, url string, data []byte) (*http.Request, error) {
 	if err != nil {
 		return nil, err
 	}
-	request.Header.Add("Accept", jsonContentType)
-
+	if data != nil {
+		request.Header.Add("Content-Type", jsonContentType)
+	}
 	return request, nil
 }
 
