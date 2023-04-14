@@ -5,7 +5,6 @@ package selenium
 
 import (
 	"bytes"
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -18,9 +17,6 @@ import (
 	"path"
 	"strings"
 	"time"
-
-	"github.com/chromedp/cdproto/cdp"
-	"github.com/mailru/easyjson"
 
 	"github.com/blang/semver"
 	"github.com/go-auxiliaries/selenium/firefox"
@@ -1295,70 +1291,6 @@ func (wd *remoteWD) execChromeDPCommand(cmd string, params map[string]interface{
 	}
 
 	return reply.Value, nil
-}
-
-// CDProtoExecutor execute Chrome DevTools Protocol command through cdproto
-type CDProtoExecutor struct {
-	*remoteWD
-}
-
-var _ cdp.Executor = (*CDProtoExecutor)(nil)
-
-// Execute executes a Chrome DevTools Protocol command.
-// So that CDProtoExecutor can be executor for cdproto,
-// refer to https://github.com/chromedp/cdproto/blob/master/cdp/types.go
-func (e CDProtoExecutor) Execute(ctx context.Context, cmd string, params easyjson.Marshaler, res easyjson.Unmarshaler) (err error) {
-	if e.browser != "chrome" {
-		return fmt.Errorf("executing a Chrome DevTools command through cdproto is only supported in Chrome, not %s", e.browser)
-	}
-
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	default:
-	}
-
-	body := map[string]interface{}{"cmd": cmd}
-
-	if params == nil {
-		// params can't be nil
-		body["params"] = make(map[string]string)
-	} else {
-		body["params"] = params
-	}
-
-	data, err := json.Marshal(body)
-	if err != nil {
-		return
-	}
-
-	response, err := e.execChromeDPCommandRaw(data)
-	if err != nil {
-		return
-	}
-
-	reply := new(struct{ Value easyjson.Unmarshaler })
-	reply.Value = res
-
-	if err = json.Unmarshal(response, reply); err != nil {
-		debugLog("cdproto value parse error :%+v", res)
-		return
-	}
-
-	debugLog("cdproto value return :%+v", res)
-
-	return
-}
-
-func (wd *remoteWD) generateCDProtoExecutor() cdp.Executor {
-	return CDProtoExecutor{wd}
-}
-
-func (wd *remoteWD) GenerateCDProtoContext(ctx context.Context) context.Context {
-	if ctx == nil {
-		ctx = context.Background()
-	}
-	return cdp.WithExecutor(ctx, wd.generateCDProtoExecutor())
 }
 
 func (wd *remoteWD) ExecuteChromeDPCommand(cmd string, params map[string]interface{}) (interface{}, error) {

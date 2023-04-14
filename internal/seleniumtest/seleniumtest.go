@@ -23,7 +23,6 @@ import (
 
 	socks5 "github.com/armon/go-socks5"
 	"github.com/blang/semver"
-	"github.com/chromedp/cdproto/browser"
 	"github.com/go-auxiliaries/selenium"
 	"github.com/go-auxiliaries/selenium/chrome"
 	"github.com/go-auxiliaries/selenium/firefox"
@@ -1804,35 +1803,8 @@ func testExecuteChromeDPCommand(t *testing.T, c Config) {
 	t.Log(product)
 }
 
-func testGenerateCDProtoContext(t *testing.T, c Config) {
-	caps := newTestCapabilities(t, c)
-
-	wd, err := NewRemote(t, caps, c.Addr)
-	if err != nil {
-		t.Fatalf("newRemote(_, _) returned error: %v", err)
-	}
-	defer func() {
-		_ = wd.Quit()
-	}()
-
-	version := browser.GetVersion()
-
-	_, product, _, _, _, err := version.Do(wd.GenerateCDProtoContext(context.Background()))
-
-	if err != nil {
-		t.Fatalf("cdproto execute error : %s", err.Error())
-	}
-
-	if strings.Index(product, "Chrome") > 0 {
-		t.Log(product)
-	} else {
-		t.Fatalf("invalid chrome version %s", product)
-	}
-}
-
 func RunChromeTests(t *testing.T, c Config) {
 	// Chrome-specific tests.
 	t.Run("Extension", runTest(testChromeExtension, c))
 	t.Run("ExecuteChromeDPCommand", runTest(testExecuteChromeDPCommand, c))
-	t.Run("GenerateCDProtoContext", runTest(testGenerateCDProtoContext, c))
 }
