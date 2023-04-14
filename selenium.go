@@ -1,7 +1,6 @@
 package selenium
 
 import (
-	"context"
 	"time"
 
 	"github.com/go-auxiliaries/selenium/chrome"
@@ -446,10 +445,6 @@ type WebDriver interface {
 	// ExecuteChromeDPCommand executes a Chrome DevTools Protocol command.
 	// See https://chromedevtools.github.io/devtools-protocol/ for available commands.
 	ExecuteChromeDPCommand(cmd string, params map[string]interface{}) (interface{}, error)
-	// GenerateCDProtoContext generates context with an executor
-	// which can execute a Chrome DevTools Protocol command through cdproto.
-	// See https://github.com/chromedp/cdproto for usage information.
-	GenerateCDProtoContext(ctx context.Context) context.Context
 	// ExecuteScript executes a script.
 	ExecuteScript(script string, args []interface{}) (interface{}, error)
 	// ExecuteScriptAsync asynchronously executes a script.
