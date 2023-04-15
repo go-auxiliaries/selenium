@@ -291,7 +291,7 @@ func (wd *remoteWD) voidCommand(urlTemplate string, params interface{}) error {
 	return voidCommand("POST", wd.requestURL(urlTemplate, wd.id), params)
 }
 
-func (wd remoteWD) stringsCommand(urlTemplate string) ([]string, error) {
+func (wd *remoteWD) stringsCommand(urlTemplate string) ([]string, error) {
 	url := wd.requestURL(urlTemplate, wd.id)
 	response, err := wd.execute("GET", url, nil)
 	if err != nil {
@@ -1276,6 +1276,15 @@ func (wd *remoteWD) AlertText() (string, error) {
 func (wd *remoteWD) SetAlertText(text string) error {
 	data := map[string]string{"text": text}
 	return wd.voidCommand("/session/%s/alert/text", data)
+}
+
+func (wd *remoteWD) AddVirtualAuthenticator(params map[string]interface{}) error {
+	return wd.voidCommand("/session/%s/webauthn/authenticator", params)
+}
+
+func (wd *remoteWD) RemoveVirtualAuthenticator(id string) error {
+	_, err := wd.execute("DELETE", wd.requestURL("/session/%s/webauthn/authenticator/"+id, wd.id), nil)
+	return err
 }
 
 func (wd *remoteWD) execScriptRaw(script string, args []interface{}, suffix string) ([]byte, error) {
