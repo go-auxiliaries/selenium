@@ -125,7 +125,7 @@ type Error struct {
 
 // Error implements the error interface.
 func (e *Error) Error() string {
-	return fmt.Sprintf("%s: %s", e.Err, e.Message)
+	return e.Message
 }
 
 // execute performs an HTTP request and inspects the returned data for an error
