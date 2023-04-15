@@ -61,8 +61,13 @@ type remoteWD struct {
 // server.
 var HTTPClient = http.DefaultClient
 
-// jsonContentType is JSON content type.
-const jsonContentType = "application/json"
+const (
+	// jsonContentType is JSON content type.
+	jsonContentType = "application/json"
+	// shadowIdentifier is the string constant defined by the W3C
+	// specification that is the key for the map that contains a unique shadow root identifier.
+	shadowRootIdentifier = "shadow-6066-11e4-a52e-4f735466cecf"
+)
 
 func newRequest(method string, url string, data []byte) (*http.Request, error) {
 	request, err := http.NewRequest(method, url, bytes.NewBuffer(data))
@@ -316,6 +321,15 @@ func (wd *remoteWD) boolCommand(urlTemplate string) (bool, error) {
 	return reply.Value, nil
 }
 
+func (wd *remoteWD) shadowRootCommand(urlTemplate string) (ShadowRoot, error) {
+	url := wd.requestURL(urlTemplate, wd.id)
+	response, err := wd.execute("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+	return wd.DecodeShadowRoot(response)
+}
+
 func (wd *remoteWD) Status() (*Status, error) {
 	url := wd.requestURL("/status")
 	reply, err := wd.execute("GET", url, nil)
@@ -329,6 +343,33 @@ func (wd *remoteWD) Status() (*Status, error) {
 	}
 
 	return &status.Value, nil
+}
+
+func (wd *remoteWD) DecodeShadowRoot(data []byte) (ShadowRoot, error) {
+	reply := new(struct{ Value map[string]string })
+	if err := json.Unmarshal(data, &reply); err != nil {
+		return nil, err
+	}
+
+	id := shadowRootIDFromValue(reply.Value)
+	if id == "" {
+		return nil, fmt.Errorf("invalid shadow root returned: %+v", reply)
+	}
+	return &remoteSR{
+		parent: wd,
+		id:     id,
+	}, nil
+}
+
+func shadowRootIDFromValue(v map[string]string) string {
+	for _, key := range []string{shadowRootIdentifier} {
+		v, ok := v[key]
+		if !ok || v == "" {
+			continue
+		}
+		return v
+	}
+	return ""
 }
 
 // parseVersion sanitizes the browser version enough for semver.ParseTolerant
@@ -705,6 +746,11 @@ func (wd *remoteWD) DecodeElement(data []byte) (WebElement, error) {
 		parent: wd,
 		id:     id,
 	}, nil
+}
+
+func (elem *remoteWE) GetElementShadowRoot() (ShadowRoot, error) {
+	url := fmt.Sprintf("/session/%%s/element/%s/shadow", elem.id)
+	return elem.parent.shadowRootCommand(url)
 }
 
 const (
@@ -1563,6 +1609,31 @@ func (elem *remoteWE) GetAttribute(name string) (string, error) {
 	return elem.parent.stringCommand(urlTemplate)
 }
 
+type remoteSR struct {
+	parent *remoteWD
+	id     string
+}
+
+func (elem *remoteSR) FindElement(by, value string) (WebElement, error) {
+	u := fmt.Sprintf("/session/%%s/shadow/%s/element", elem.id)
+	response, err := elem.parent.find(by, value, "", u)
+	if err != nil {
+		return nil, err
+	}
+
+	return elem.parent.DecodeElement(response)
+}
+
+func (elem *remoteSR) FindElements(by, value string) ([]WebElement, error) {
+	u := fmt.Sprintf("/session/%%s/shadow/%s/element", elem.id)
+	response, err := elem.parent.find(by, value, "s", u)
+	if err != nil {
+		return nil, err
+	}
+
+	return elem.parent.DecodeElements(response)
+}
+
 func round(f float64) int {
 	if f < -0.5 {
 		return int(f - 0.5)
@@ -1576,9 +1647,9 @@ func round(f float64) int {
 func (elem *remoteWE) location(suffix string) (*Point, error) {
 	if !elem.parent.w3cCompatible {
 		wd := elem.parent
-		path := "/session/%s/element/%s/location" + suffix
-		url := wd.requestURL(path, wd.id, elem.id)
-		response, err := wd.execute("GET", url, nil)
+		p := "/session/%s/element/%s/location" + suffix
+		u := wd.requestURL(p, wd.id, elem.id)
+		response, err := wd.execute("GET", u, nil)
 		if err != nil {
 			return nil, err
 		}
